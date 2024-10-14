@@ -1,0 +1,63 @@
+Keyword: Meter Wakes up
+[14:15:29.275] -> [14:15:29.275]IN¡û¡ô[0;32mI (1288) bat_monitor: vol:3559.47 state 2  // Meter Wakes up
+
+Keyword: get network status
+[14:16:10.280] -> [14:16:10.280]IN¡û¡ô[0;32mI (42288) pppos_new: get network status: type=0, stat=0[0m
+[14:16:11.321] -> [14:16:11.321]IN¡û¡ô[0;32mI (43328) pppos_new: get network status: type=0, stat=0[0m
+[14:16:12.360] -> [14:16:12.360]IN¡û¡ô[0;32mI (44368) pppos_new: get network status: type=0, stat=0[0m
+[14:16:13.384] -> [14:16:13.384]IN¡û¡ô[0;32mI (45398) pppos_new: get network status: type=0, stat=0[0m
+[14:16:14.447] -> [14:16:14.447]IN¡û¡ônew: get network status: type=0, stat=0[0m
+[14:16:15.464] -> [14:16:15.464]IN¡û¡ô[0;32mI (47478) pppos_new: get network status: type=0, stat=5[0m //Attaches to GSM Network. attach and registered to network status can be 1 or 5 local or Roaming
+
+Keyword: Signal quality
+[14:16:16.152] -> [14:16:16.152]IN¡û¡ô[0;32mI (48158) pppos_new: Signal quality: rssi=31, ber=99[0m //RSSI we get here
+[14:16:16.254] -> [14:16:16.254]IN¡û¡ô[0;32mI (48248) pppos_new: Signal quality: rssi=31, ber=99[0m
+
+Keyword: Authenticates to Server
+[14:16:35.347] -> [14:16:35.347]IN¡û¡ôientcert ...  // Authenticates to Server
+
+Keyword: aws_Connect
+[14:16:39.879] -> [14:16:39.879]IN¡û¡ôaws_Connect : aws_Connect completed ! // Opens Protocol (TCP or MQTT)
+
+Keyword: MQTT ACK
+[14:16:41.382] -> [14:16:41.382]IN¡û¡ô[0;32mI (73388) coreMQTT: Received MQTT ACK (packet_id:1, type:144): Was registered[0m  //Check for Job / Commands time
+[14:16:42.278] -> [14:16:42.278]IN¡û¡ô[0;32mI (74278) coreMQTT: Received MQTT ACK (packet_id:2, type:144): Was registered[0m
+[14:16:43.110] -> [14:16:43.110]IN¡û¡ô[0;32mI (75128) coreMQTT: Received MQTT ACK (packet_id:3, type:64): Was registered[0m
+[14:16:47.590] -> [14:16:47.590]IN¡û¡ô[0;32mI (79598) coreMQTT: Received MQTT ACK (packet_id:4, type:176): Was registered[0m
+[14:16:48.422] -> [14:16:48.422]IN¡û¡ô[0;32mI (80428) coreMQTT: Received MQTT ACK (packet_id:5, type:176): Was registered[0m
+[14:16:49.365] -> [14:16:49.365]IN¡û¡ô[0;32mI (81378) coreMQTT: Received MQTT ACK (packet_id:6, type:144): Was registered[0m
+[14:16:50.262] -> [14:16:50.262]IN¡û¡ô[0;32mI (82278) coreMQTT: Received MQTT ACK (packe
+[14:16:51.102] -> [14:16:51.102]IN¡û¡ômI (83098) coreMQTT: Received MQTT ACK (packet_id:8, type:64): Was registered[0m
+[14:16:55.493] -> [14:16:55.493]IN¡û¡ô[0;32mI (87508) coreMQTT: Received MQTT ACK (packet_id:9, type:176): Was registered[0m
+[14:16:56.389] -> [14:16:56.389]IN¡û¡ô[0;32mI (88408) coreMQTT: Received MQTT ACK (packet_id:10, type:176): Was registered[0m
+[14:16:57.317] -> [14:16:57.317]IN¡û¡ô[0;32mI (89318) coreMQTT: Received MQTT ACK (packet_id:11, type:144): Was registered[0m
+[14:16:58.133] -> [14:16:58.133]IN¡û¡ô[0;32mI (90148) coreMQTT: Received MQTT ACK (packet_id:12, type:64): Was registered[0m
+[14:17:02.485] -> [14:17:02.485]IN¡û¡ô[0;32mI (94498) coreMQTT: Received MQTT ACK (packet_id:13, type:176): Was registered[0m
+[14:17:04.709] -> [14:17:04.709]IN¡û¡ô[0;32mI (96718) coreMQTT: Received MQTT ACK (packet_id:14, type:144): Was registered[0m
+[14:17:05.621] -> [14:17:05.621]IN¡û¡ô[0;32mI (97638) coreMQTT: Received MQTT ACK (packet_id:15, type:64): Was registered[0m
+[14:17:10.084] -> [14:17:10.084]IN¡û¡ô[0;32mI (102098) coreMQTT: Received MQTT ACK (packet_id:16, type:176): Was registered[0m
+[14:17:13.268] -> [14:17:13.268]IN¡û¡ô[0;32mI (105288) coreMQTT: Received MQTT ACK (packet_id:17, type:64): Was registered[0m
+[14:17:17.396] -> [14:17:17.396]IN¡û¡ô[0;32mI (109408) coreMQTT: Received MQTT ACK (packet_id:18, type:64): Was registered[0m
+[14:17:19.908] -> [14:17:19.908]IN¡û¡ô[0;32mI (111928) coreMQTT: Received MQTT ACK (packet_id:19, type:64): Was registered[0m
+
+Keyword: aws_Excute_Job
+[14:17:10.420] -> [14:17:10.420]IN¡û¡ôaws_Excute_Job : aws_Excute_Job successed // Meter Finishes Executing Command
+
+Keyword: aws_Publish
+[14:16:44.550] -> [14:16:44.550]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:16:52.549] -> [14:16:52.549]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:16:59.557] -> [14:16:59.557]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:17:07.061] -> [14:17:07.061]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:17:14.644] -> [14:17:14.644]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:17:18.772] -> [14:17:18.772]IN¡û¡ôaws_Publish : aws_Publish successed !
+[14:17:21.268] -> [14:17:21.268]IN¡û¡ôaws_Publish : aws_Publish successed ! //Send Telemetry Data here we record the last data meter send to get the total time it us to send all data.
+
+Keyword: aws_Disconnect
+[14:17:21.412] -> [14:17:21.412]IN¡û¡ôaws_Disconnect : aws_Disconnect successed !  // Disconnection from Server
+
+Keyword: run pppos_disc
+[14:17:22.227] -> [14:17:22.227]IN¡û¡ôrun pppos_disc ret=0 //Disconnection from GSM Network  after meter finish event on ppp before sleep event start
+
+Keyword: into low power
+[14:17:33.027] -> [14:17:33.027]IN¡û¡ô->into low power! // Deep Sleep
+
