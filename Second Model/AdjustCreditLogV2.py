@@ -34,15 +34,25 @@ def extract_times_from_log(log_file_path, keywords):
     
     return extracted_data, meterId
 
-# Function to save the extracted data to a file
-def save_extracted_data_to_file(extracted_data, meterId, log_file_path):
-    # File name based on meterId, saved in the same directory as the log file
+# Function to save the extracted data to a file, including keyword values as a header
+def save_extracted_data_to_file(extracted_data, meterId, log_file_path, extracted_values):
+    # Get log file name (without extension) and directory
+    log_file_name = os.path.basename(log_file_path).split('.')[0]
     log_dir = os.path.dirname(log_file_path)
-    file_name = f"{meterId}_keywords.txt"
+
+    # File name is a combination of the log file name and meterId
+    file_name = f"{log_file_name}_{meterId}_keywords.txt"
     output_file_path = os.path.join(log_dir, file_name)
-    
+
     # Write to the file
     with open(output_file_path, 'w') as file:
+        # Write extracted values as header
+        file.write("Extracted Values After Specific Keywords:\n")
+        for keyword, values in extracted_values.items():
+            file.write(f"{keyword}: {', '.join(values)}\n")
+        file.write("\n\n")
+
+        # Write extracted timestamp data
         for keyword, entries in extracted_data.items():
             file.write(f"Keyword: {keyword}\n")
             if entries:
@@ -129,22 +139,14 @@ log_file_path = input("Please enter the full path to the log file: ")
 # Run the function to extract times and meterId
 extracted_times, meterId = extract_times_from_log(log_file_path, keywords_to_search)
 
+# Extract values after specific keywords
+extracted_values = extract_values_from_log(log_file_path, keywords_to_extract_values)
+
 # Check if the meterId was found
 if meterId:
-    # Save the extracted data to a file named with meterId
-    save_extracted_data_to_file(extracted_times, meterId, log_file_path)
+    # Save the extracted data to a file named with log file name and meterId
+    save_extracted_data_to_file(extracted_times, meterId, log_file_path, extracted_values)
     # Plot keywords vs time
     plot_keywords_vs_time(extracted_times)
 else:
     print("Meter ID not found in the log file.")
-
-# Extract values after specific keywords
-extracted_values = extract_values_from_log(log_file_path, keywords_to_extract_values)
-
-# Display extracted values
-print("\nExtracted Values After Specific Keywords:")
-for keyword, values in extracted_values.items():
-    print(f"Keyword: {keyword}")
-    for value in values:
-        print(f"Extracted value: {value}")
-    print("\n")
