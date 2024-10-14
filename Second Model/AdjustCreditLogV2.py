@@ -2,6 +2,7 @@ import re
 import os
 import matplotlib.pyplot as plt
 
+# Function to extract timestamps for specific keywords
 def extract_times_from_log(log_file_path, keywords):
     # Open and read the log file
     with open(log_file_path, 'r') as log_file:
@@ -17,8 +18,8 @@ def extract_times_from_log(log_file_path, keywords):
     # Iterate over log lines to find matches
     for line in log_lines:
         # Extract meterId
-        if "meterId" in line:
-            meterId_match = re.search(r"meterId\s*:\s*(\d+)", line)
+        if "g_meterId" in line:
+            meterId_match = re.search(r"g_meterId\s*:\s*(\d+)", line)
             if meterId_match:
                 meterId = meterId_match.group(1)
 
@@ -33,6 +34,7 @@ def extract_times_from_log(log_file_path, keywords):
     
     return extracted_data, meterId
 
+# Function to save the extracted data to a file
 def save_extracted_data_to_file(extracted_data, meterId, log_file_path):
     # File name based on meterId, saved in the same directory as the log file
     log_dir = os.path.dirname(log_file_path)
@@ -52,6 +54,7 @@ def save_extracted_data_to_file(extracted_data, meterId, log_file_path):
     
     print(f"Data saved to {output_file_path}")
 
+# Function to plot the keywords vs time
 def plot_keywords_vs_time(extracted_data):
     plt.figure(figsize=(10, 6))
     
@@ -75,7 +78,26 @@ def plot_keywords_vs_time(extracted_data):
     plt.tight_layout()
     plt.show()
 
-# Define the keywords you want to search for
+# Function to extract values after specific keywords
+def extract_values_from_log(log_file_path, keywords):
+    # Open and read the log file
+    with open(log_file_path, 'r') as log_file:
+        log_lines = log_file.readlines()
+    
+    # Dictionary to store the extracted values
+    extracted_data = {keyword: [] for keyword in keywords}
+
+    # Iterate over log lines to find the keywords and extract their values
+    for line in log_lines:
+        for keyword in keywords:
+            if keyword in line:
+                # Extract the part of the line after the keyword
+                value = line.split(keyword)[-1].strip()
+                extracted_data[keyword].append(value)
+
+    return extracted_data
+
+# Define the keywords you want to search for (timestamps)
 keywords_to_search = [
     "Send Ack", 
     "Meter Wakes up", 
@@ -89,6 +111,16 @@ keywords_to_search = [
     "aws_Disconnect", 
     "run pppos_disc", 
     "into low power"
+]
+
+# Define the keywords you want to search for (values after keyword)
+keywords_to_extract_values = [
+    "g_meterId", 
+    "g_stIccid.iccid_nu", 
+    "PCB Type", 
+    "bat_monitor", 
+    "get network status", 
+    "Signal quality"
 ]
 
 # Ask the user for the log file path
@@ -105,3 +137,14 @@ if meterId:
     plot_keywords_vs_time(extracted_times)
 else:
     print("Meter ID not found in the log file.")
+
+# Extract values after specific keywords
+extracted_values = extract_values_from_log(log_file_path, keywords_to_extract_values)
+
+# Display extracted values
+print("\nExtracted Values After Specific Keywords:")
+for keyword, values in extracted_values.items():
+    print(f"Keyword: {keyword}")
+    for value in values:
+        print(f"Extracted value: {value}")
+    print("\n")
