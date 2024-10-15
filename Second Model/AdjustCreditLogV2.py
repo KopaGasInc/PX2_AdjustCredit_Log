@@ -16,9 +16,6 @@ def extract_times_from_log(log_file_path, keywords):
     except FileNotFoundError:
         print(f"Error: File '{log_file_path}' not found.")
         return None, None, None
-    except Exception as e:
-        print(f"Error reading file: {e}")
-        return None, None, None
     
     timestamp_pattern = r"\[(\d{2}:\d{2}:\d{2}\.\d{3})\]"
     
@@ -149,6 +146,32 @@ def extract_values_from_log(log_file_path, keywords):
 
     return extracted_data
 
+# Function to calculate the maximum time elapsed for each keyword and create a summary
+def create_summary_stats(extracted_data, log_file_path):
+    summary_data = {}
+    
+    # Find the maximum time elapsed for each keyword
+    for entry in extracted_data:
+        keyword = entry['keyword']
+        if 'time_elapsed' in entry and entry['time_elapsed'] != 'N/A':
+            elapsed_time = float(entry['time_elapsed'])
+            if keyword not in summary_data or elapsed_time > summary_data[keyword]:
+                summary_data[keyword] = elapsed_time
+
+    # Save the summary to a CSV file
+    summary_file_path = os.path.join(os.path.dirname(log_file_path), "SummaryStats.csv")
+    
+    try:
+        with open(summary_file_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Keyword', 'Max Time Elapsed (seconds)'])
+            for keyword, max_time in summary_data.items():
+                writer.writerow([keyword, f"{max_time:.3f}"])
+        
+        print(f"Summary saved to {summary_file_path}")
+    except Exception as e:
+        print(f"Error saving summary to file: {e}")
+
 # Function to process multiple log files in a folder
 def process_folder(folder_path, keywords, header_keywords):
     for file_name in os.listdir(folder_path):
@@ -171,6 +194,9 @@ def process_folder(folder_path, keywords, header_keywords):
 
             # Plot keywords vs relative time and save the plot
             plot_keywords_vs_time(extracted_times, log_file_path, meterId)
+
+            # Create and save the summary stats
+            create_summary_stats(extracted_times, log_file_path)
 
 # Keywords for event tracking and headers
 keywords = {
@@ -197,7 +223,6 @@ header_keywords = {
 
 # Ask for folder path
 folder_path = input("Please enter the full path to the folder containing log files: ")
-
 
 # Run the process for all log files in the folder
 process_folder(folder_path, keywords, header_keywords)
