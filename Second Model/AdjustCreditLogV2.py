@@ -39,9 +39,10 @@ def extract_times_from_log(log_file_path, keywords):
 
             # Check for each keyword and store relevant data
             for keyword, meaning in keywords.items():
-                if keyword in line:
-                    # Check if it's the meter wake-up time
-                    if keyword == "Calling app_main()" and meter_wake_time is None:
+                # Use case-insensitive and whitespace-trimmed matching
+                if re.search(re.escape(keyword.strip()), line.strip(), re.IGNORECASE):
+                    # Check if it's the meter wake-up time (cpu_start:)
+                    if keyword.lower() == "cpu_start:".lower() and meter_wake_time is None:
                         meter_wake_time = timestamp  # Set the meter wake-up time
                     extracted_data.append({
                         'timestamp': timestamp,
@@ -51,7 +52,7 @@ def extract_times_from_log(log_file_path, keywords):
                     })
     
     if meter_wake_time is None:
-        print("Warning: 'Calling app_main()' (meter wake-up event) not found.")
+        print("Warning: 'cpu_start:' (meter wake-up event) not found.")
     
     return extracted_data, meter_wake_time, meterId
 
@@ -165,8 +166,8 @@ def extract_values_from_log(log_file_path, keywords):
     # Iterate over log lines to find the keywords and extract their values
     for line in log_lines:
         for keyword in extracted_data:
-            if keyword in line:
-                # Extract the part of the line after the keyword and store as the value
+            # Use case-insensitive and whitespace-trimmed matching for header values
+            if re.search(re.escape(keyword.strip()), line.strip(), re.IGNORECASE):
                 value = line.split(keyword)[-1].strip()
                 extracted_data[keyword]["data"].append(value)
 
@@ -174,7 +175,7 @@ def extract_values_from_log(log_file_path, keywords):
 
 # Updated Keywords and their corresponding meanings
 keywords = {
-    "Calling app_main()": "Meter Wakes up",
+    "cpu_start:": "Meter Wakes up",  # Changed from "Calling app_main()"
     "get network status": "Attaches to GSM Network",
     "Signal quality": "RSSI measurement",
     "get_clientcert": "Authenticates to Server",
