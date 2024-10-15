@@ -3,9 +3,28 @@
 This Python script extracts timestamps and related log lines based on specific keywords from a log file. It also extracts the `meterId` from the log and saves the output to a file named `<meterId>_keywords.txt`.
 
 ## Features
-- Extracts timestamps from log lines that match specific keywords.
-- Automatically finds the `meterId` from the log file.
-- Saves the extracted data to a file named after the `meterId`.
+# Key Features of the Updated Script:
+
+### Flexible Keyword Matching:
+Uses case-insensitive matching (re.IGNORECASE) to find keywords regardless of casing.
+Trims whitespaces from both the keyword and the log lines to ensure more flexible matching (ignoring accidental spaces).
+Configurable Wake-up Event:
+The keyword for the meter wake-up event has been updated to "cpu_start:" (previously "Calling app_main()"), and it can be adjusted easily to other keywords if needed.
+Time Elapsed Calculation:
+Calculates the time elapsed for each event in seconds based on the timestamp of the meter wake-up event (cpu_start:).
+Handles errors during timestamp parsing and logs them without breaking the flow of the program.
+CSV Output with Header Information:
+Extracts values after specific keywords (e.g., g_meterId, g_stIccid.iccid_nu) and saves them as header information in the output CSV file.
+Saves each event with its associated timestamp, time elapsed, keyword, and description in the CSV file.
+Handling of Repeated Keywords:
+Processes multiple occurrences of the same keyword (e.g., multiple "Signal quality" events) and logs each occurrence independently.
+Each event is recorded with its own time elapsed and saved to the output CSV.
+Plotting Events:
+Generates a scatter plot showing the keywords vs relative time elapsed since the meter wake-up event.
+Saves the plot in the same directory as the log file, with a filename that includes the meter ID for easy identification.
+Robust Error Handling:
+Handles common file-related errors such as file not found (FileNotFoundError) and issues with reading or writing to the file.
+Logs any timestamp parsing errors and continues processing the log without crashing.
 
 ## Requirements
 - Python 3.x
