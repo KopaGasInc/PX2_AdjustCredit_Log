@@ -34,7 +34,7 @@ def extract_times_from_log(log_file_path, keywords):
             # Check for each keyword and store relevant data
             for keyword, meaning in keywords.items():
                 if keyword in line:
-                    if keyword == "bat_monitor" and meter_wake_time is None:
+                    if keyword == "Calling app_main()" and meter_wake_time is None:
                         meter_wake_time = timestamp  # Set the meter wake-up time
                     extracted_data.append({
                         'timestamp': timestamp,
@@ -74,16 +74,25 @@ def save_extracted_data_to_file(extracted_data, meterId, log_file_path, extracte
     
     # Write to the CSV file
     with open(output_file_path, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
+        writer = csv.writer(file)
+        # Save header info first
+        file.write("Header Information:\n")
+        writer.writerow(["Keyword", "Meaning", "Value"])
+        for keyword, value in extracted_values.items():
+            if value:
+                writer.writerow([keyword, value['meaning'], ', '.join(value['data'])])
+        file.write("\n\n")
+
+        # Write timestamp data
+        writer.writerow(headers)
         for entry in extracted_data:
-            writer.writerow({
-                'Timestamp': entry['timestamp'],
-                'Time Elapsed Since Meter Wakes Up': entry.get('time_elapsed', 'N/A'),
-                'Keyword': entry['keyword'],
-                'Data in the Line Found': entry['line'],
-                'Meaning': entry['meaning']
-            })
+            writer.writerow([
+                entry['timestamp'],
+                entry.get('time_elapsed', 'N/A'),
+                entry['keyword'],
+                entry['line'],
+                entry['meaning']
+            ])
     
     print(f"Data saved to {output_file_path}")
     return output_file_path
@@ -118,21 +127,21 @@ def extract_values_from_log(log_file_path, keywords):
         log_lines = log_file.readlines()
     
     # Dictionary to store the extracted values
-    extracted_data = {keyword: [] for keyword in keywords}
+    extracted_data = {keyword: {"meaning": meaning, "data": []} for keyword, meaning in keywords.items()}
 
     # Iterate over log lines to find the keywords and extract their values
     for line in log_lines:
-        for keyword in keywords:
+        for keyword in extracted_data:
             if keyword in line:
                 # Extract the part of the line after the keyword and store as the value
                 value = line.split(keyword)[-1].strip()
-                extracted_data[keyword].append(value)
+                extracted_data[keyword]["data"].append(value)
 
     return extracted_data
 
-# Keywords and their corresponding meanings
+# Updated Keywords and their corresponding meanings
 keywords = {
-    "bat_monitor": "Meter Wakes up",
+    "Calling app_main()": "Meter Wakes up",
     "get network status": "Attaches to GSM Network",
     "Signal quality": "RSSI measurement",
     "get_clientcert": "Authenticates to Server",
@@ -145,15 +154,14 @@ keywords = {
     "into low power!": "Deep Sleep"
 }
 
-# Define the keywords you want to search for (values after keyword)
-keywords_to_extract_values = [
-    "g_meterId", 
-    "g_stIccid.iccid_nu", 
-    "PCB Type", 
-    "bat_monitor", 
-    "get network status", 
-    "Signal quality"
-]
+# Define the keywords you want to search for in the header
+header_keywords = {
+    "g_meterId": "Meter ID",
+    "g_stIccid.iccid_nu": "ICCID",
+    "PCB Type": "PCB Type",
+    "bat_monitor": "Battery Voltage",
+    "get network status": "Net Status"
+}
 
 # Ask the user for the log file path
 log_file_path = input("Please enter the full path to the log file: ")
@@ -162,13 +170,13 @@ log_file_path = input("Please enter the full path to the log file: ")
 extracted_times, meter_wake_time, meterId = extract_times_from_log(log_file_path, keywords)
 
 # Extract header values after specific keywords
-extracted_values = extract_values_from_log(log_file_path, keywords_to_extract_values)
+extracted_values = extract_values_from_log(log_file_path, header_keywords)
 
 # Calculate the time elapsed since meter wakes up
 if meter_wake_time:
     extracted_times = calculate_time_elapsed(extracted_times, meter_wake_time)
 
-# Save the extracted data to a CSV file
+# Save the extracted data to a CSV file, including the header info
 output_file_path = save_extracted_data_to_file(extracted_times, meterId, log_file_path, extracted_values)
 
 # Plot keywords vs relative time and save the plot in the same folder
