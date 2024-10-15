@@ -198,5 +198,6 @@ header_keywords = {
 # Ask for folder path
 folder_path = input("Please enter the full path to the folder containing log files: ")
 
+
 # Run the process for all log files in the folder
 process_folder(folder_path, keywords, header_keywords)
