@@ -1,6 +1,8 @@
 import re
 import os
+import csv
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 # Function to extract timestamps for specific keywords
 def extract_times_from_log(log_file_path, keywords):
@@ -9,10 +11,11 @@ def extract_times_from_log(log_file_path, keywords):
         log_lines = log_file.readlines()
     
     # Regex pattern to match the timestamp and the log message
-    timestamp_pattern = r"\[\d{2}:\d{2}:\d{2}\.\d{3}\]"
+    timestamp_pattern = r"\[(\d{2}:\d{2}:\d{2}\.\d{3})\]"
     
     # Store results in a dictionary
-    extracted_data = {keyword: [] for keyword in keywords}
+    extracted_data = []
+    meter_wake_time = None
     meterId = None
     
     # Iterate over log lines to find matches
@@ -23,87 +26,80 @@ def extract_times_from_log(log_file_path, keywords):
             if meterId_match:
                 meterId = meterId_match.group(1)
 
-        # Extract keyword-related lines and timestamps
-        for keyword in keywords:
-            if keyword in line:
-                # Extract timestamp
-                timestamp_match = re.search(timestamp_pattern, line)
-                if timestamp_match:
-                    timestamp = timestamp_match.group(0)
-                    extracted_data[keyword].append((timestamp, line.strip()))
+        # Extract timestamp
+        timestamp_match = re.search(timestamp_pattern, line)
+        if timestamp_match:
+            timestamp = timestamp_match.group(1)
+            
+            # Check for each keyword and store relevant data
+            for keyword, meaning in keywords.items():
+                if keyword in line:
+                    if keyword == "bat_monitor" and meter_wake_time is None:
+                        meter_wake_time = timestamp  # Set the meter wake-up time
+                    extracted_data.append({
+                        'timestamp': timestamp,
+                        'keyword': keyword,
+                        'line': line.strip(),
+                        'meaning': meaning
+                    })
     
-    return extracted_data, meterId
+    return extracted_data, meter_wake_time, meterId
 
-# Function to save the extracted data to a file, including keyword values as a header
+# Function to calculate time elapsed since meter wakes up
+def calculate_time_elapsed(data, meter_wake_time):
+    if meter_wake_time is None:
+        return data
+    
+    meter_wake_time_obj = datetime.strptime(meter_wake_time, '%H:%M:%S.%f')
+    
+    for entry in data:
+        event_time_obj = datetime.strptime(entry['timestamp'], '%H:%M:%S.%f')
+        elapsed_time = (event_time_obj - meter_wake_time_obj).total_seconds()
+        entry['time_elapsed'] = f"{elapsed_time:.3f}"
+    
+    return data
+
+# Function to save the extracted data into a CSV file with the specified table format
 def save_extracted_data_to_file(extracted_data, meterId, log_file_path, extracted_values):
     # Get log file name (without extension) and directory
     log_file_name = os.path.basename(log_file_path).split('.')[0]
     log_dir = os.path.dirname(log_file_path)
 
     # File name is a combination of the log file name and meterId
-    file_name = f"{log_file_name}_{meterId}_keywords.txt"
+    file_name = f"{log_file_name}_{meterId}_timestamps.csv"
     output_file_path = os.path.join(log_dir, file_name)
 
-    # Write to the file
-    with open(output_file_path, 'w') as file:
-        # Write extracted values as header
-        file.write("Extracted Values After Specific Keywords:\n")
-        for keyword, values in extracted_values.items():
-            file.write(f"{keyword}: {', '.join(values)}\n")
-        file.write("\n\n")
-
-        # Write extracted timestamp data
-        for keyword, entries in extracted_data.items():
-            file.write(f"Keyword: {keyword}\n")
-            if entries:
-                for timestamp, line in entries:
-                    file.write(f"{timestamp} -> {line}\n")
-            else:
-                file.write("No matches found.\n")
-            file.write("\n")
+    # Define headers for the CSV file
+    headers = ['Timestamp', 'Time Elapsed Since Meter Wakes Up', 'Keyword', 'Data in the Line Found', 'Meaning']
+    
+    # Write to the CSV file
+    with open(output_file_path, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=headers)
+        writer.writeheader()
+        for entry in extracted_data:
+            writer.writerow({
+                'Timestamp': entry['timestamp'],
+                'Time Elapsed Since Meter Wakes Up': entry.get('time_elapsed', 'N/A'),
+                'Keyword': entry['keyword'],
+                'Data in the Line Found': entry['line'],
+                'Meaning': entry['meaning']
+            })
     
     print(f"Data saved to {output_file_path}")
     return output_file_path
 
-# Function to plot the keywords vs relative time and save the plot
+# Function to plot the keywords vs relative time
 def plot_keywords_vs_time(extracted_data, log_file_path, meterId):
     plt.figure(figsize=(10, 6))
     
-    # Find the first timestamp across all keywords
-    first_timestamp = None
-    for keyword, entries in extracted_data.items():
-        if entries:
-            timestamp = entries[0][0]
-            time_parts = re.findall(r"\d+", timestamp)
-            hours, minutes, seconds, milliseconds = map(int, time_parts)
-            total_seconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
-            if first_timestamp is None or total_seconds < first_timestamp:
-                first_timestamp = total_seconds
-
-    # Check if there's any timestamp data
-    if first_timestamp is None:
-        print("No timestamps found for the given keywords.")
-        return
-
-    # Now, calculate relative time and plot the data
-    for keyword, entries in extracted_data.items():
-        times = []
-        for timestamp, _ in entries:
-            # Convert time format [HH:MM:SS.mmm] into seconds for plotting
-            time_parts = re.findall(r"\d+", timestamp)
-            hours, minutes, seconds, milliseconds = map(int, time_parts)
-            total_seconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
-            relative_time = total_seconds - first_timestamp  # Calculate relative time
-            times.append(relative_time)
-        
-        # Plot times for the current keyword
-        if times:
-            plt.scatter(times, [keyword] * len(times), label=keyword, s=100)
+    # Now, plot each keyword with its relative time
+    for entry in extracted_data:
+        if 'time_elapsed' in entry:
+            plt.scatter(float(entry['time_elapsed']), entry['keyword'], label=entry['keyword'], s=100)
 
     plt.xlabel('Relative Time (in seconds)')
     plt.title('Keywords vs Relative Time')
     plt.grid(True)
-    plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     plt.tight_layout()
 
     # Save the plot in the same directory as the log file
@@ -134,21 +130,20 @@ def extract_values_from_log(log_file_path, keywords):
 
     return extracted_data
 
-# Define the keywords you want to search for (timestamps)
-keywords_to_search = [
-    "Send Ack", 
-    "Meter Wakes up", 
-    "get network status", 
-    "Signal quality", 
-    "Authenticates to Server", 
-    "aws_Connect", 
-    "MQTT ACK", 
-    "aws_Excute_Job", 
-    "aws_Publish", 
-    "aws_Disconnect", 
-    "run pppos_disc", 
-    "into low power"
-]
+# Keywords and their corresponding meanings
+keywords = {
+    "bat_monitor": "Meter Wakes up",
+    "get network status": "Attaches to GSM Network",
+    "Signal quality": "RSSI measurement",
+    "get_clientcert": "Authenticates to Server",
+    "aws_Connect": "Opens Protocol (TCP or MQTT)",
+    "coreMQTT": "Check for Job via MQTT ACK",
+    "aws_Excute_Job": "Meter finishes executing command",
+    "aws_Publish": "Send Telemetry Data",
+    "aws_Disconnect": "Disconnection from Server",
+    "pppos_disc": "Disconnection from GSM Network",
+    "into low power!": "Deep Sleep"
+}
 
 # Define the keywords you want to search for (values after keyword)
 keywords_to_extract_values = [
@@ -163,18 +158,18 @@ keywords_to_extract_values = [
 # Ask the user for the log file path
 log_file_path = input("Please enter the full path to the log file: ")
 
-# Run the function to extract times and meterId
-extracted_times, meterId = extract_times_from_log(log_file_path, keywords_to_search)
+# Run the function to extract times and keywords
+extracted_times, meter_wake_time, meterId = extract_times_from_log(log_file_path, keywords)
 
-# Extract values after specific keywords
+# Extract header values after specific keywords
 extracted_values = extract_values_from_log(log_file_path, keywords_to_extract_values)
 
-# Check if the meterId was found
-if meterId:
-    # Save the extracted data to a file named with log file name and meterId
-    output_file_path = save_extracted_data_to_file(extracted_times, meterId, log_file_path, extracted_values)
-    
-    # Plot keywords vs relative time and save the plot in the same folder
-    plot_keywords_vs_time(extracted_times, log_file_path, meterId)
-else:
-    print("Meter ID not found in the log file.")
+# Calculate the time elapsed since meter wakes up
+if meter_wake_time:
+    extracted_times = calculate_time_elapsed(extracted_times, meter_wake_time)
+
+# Save the extracted data to a CSV file
+output_file_path = save_extracted_data_to_file(extracted_times, meterId, log_file_path, extracted_values)
+
+# Plot keywords vs relative time and save the plot in the same folder
+plot_keywords_vs_time(extracted_times, log_file_path, meterId)
