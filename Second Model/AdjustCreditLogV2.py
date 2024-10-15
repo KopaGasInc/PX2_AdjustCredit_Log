@@ -9,6 +9,7 @@ def extract_times_from_log(log_file_path, keywords):
     extracted_data = []
     meter_wake_time = None
     meterId = None
+    last_timestamp = None  # Keep track of the most recent timestamp
 
     try:
         with open(log_file_path, 'r') as log_file:
@@ -16,30 +17,41 @@ def extract_times_from_log(log_file_path, keywords):
     except FileNotFoundError:
         print(f"Error: File '{log_file_path}' not found.")
         return None, None, None
-    
+
     timestamp_pattern = r"\[(\d{2}:\d{2}:\d{2}\.\d{3})\]"
     
-    for line in log_lines:
-        if "g_meterId" in line:
-            meterId_match = re.search(r"g_meterId\s*:\s*(\d+)", line)
-            if meterId_match:
-                meterId = meterId_match.group(1)
-
+    # Iterate over log lines
+    for i, line in enumerate(log_lines):
+        # Check if the line contains a timestamp
         timestamp_match = re.search(timestamp_pattern, line)
         if timestamp_match:
-            timestamp = timestamp_match.group(1)
+            last_timestamp = timestamp_match.group(1)  # Update the last known timestamp
 
-            for keyword, meaning in keywords.items():
-                if re.search(re.escape(keyword.strip()), line.strip(), re.IGNORECASE):
+        # Now look for keywords
+        for keyword, meaning in keywords.items():
+            if re.search(re.escape(keyword.strip()), line.strip(), re.IGNORECASE):
+                # If no timestamp found in this line, look back at previous lines
+                if not last_timestamp:
+                    for j in range(1, 4):  # Look back up to 3 lines
+                        if i - j >= 0:  # Ensure index stays valid
+                            previous_line = log_lines[i - j]
+                            timestamp_match = re.search(timestamp_pattern, previous_line)
+                            if timestamp_match:
+                                last_timestamp = timestamp_match.group(1)
+                                break
+
+                if last_timestamp:
                     if keyword.lower() == "cpu_start:".lower() and meter_wake_time is None:
-                        meter_wake_time = timestamp
+                        meter_wake_time = last_timestamp  # Set the meter wake-up time
+
                     extracted_data.append({
-                        'timestamp': timestamp,
+                        'timestamp': last_timestamp,
                         'keyword': keyword,
                         'line': line.strip(),
                         'meaning': meaning
                     })
-    
+                last_timestamp = None  # Reset the last timestamp after use
+
     if meter_wake_time is None:
         print("Warning: 'cpu_start:' (meter wake-up event) not found.")
     
