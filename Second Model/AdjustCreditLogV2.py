@@ -13,7 +13,7 @@ def extract_times_from_log(log_file_path, keywords):
     # Regex pattern to match the timestamp and the log message
     timestamp_pattern = r"\[(\d{2}:\d{2}:\d{2}\.\d{3})\]"
     
-    # Store results in a dictionary
+    # Store results in a list
     extracted_data = []
     meter_wake_time = None
     meterId = None
@@ -164,7 +164,7 @@ header_keywords = {
 }
 
 # Ask the user for the log file path
-log_file_path = input("Please enter the full path to the log file: ")
+log_file_path = 'path/to/test9.txt' # Replace with actual file path
 
 # Run the function to extract times and keywords
 extracted_times, meter_wake_time, meterId = extract_times_from_log(log_file_path, keywords)
