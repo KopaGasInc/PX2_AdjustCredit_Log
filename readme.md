@@ -7,6 +7,6 @@ This reporsitory is for scripts to processes log files during the development of
 This repository contains subfolders, each with its own documentation. Click on the links below to view the documentation for each subfolder.
 
 - [Data Agregator](dataAgregator/dataAgregator.md)
-- [Extract Events from a Log File](extractEvents/extractEvent.md)
+- [Extract Events from a Log File](extractEvents/extractEvents.md)
 - [Extract Events from Multiple Log Files](extractEventsForMultipleFiles/ExtractEventsFromMultipleLogs.md)
 - [Energy Analysis](px2EnergyAnalysis/px2EnergyAnalysis.md)
