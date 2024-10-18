@@ -2,7 +2,7 @@
 # Log Processing Script Documentation
 
 ## Overview
-This script processes log files, extracts specific header information, and captures timestamps for various events that occur during the operation of a device (such as a smart meter). It then calculates the elapsed time for each event and offers the ability to save these results to a CSV file. Additionally, the script generates a plot that visualizes the event timeline.
+This script processes log files, extracts specific header information, and captures timestamps for various events that occur during the operation of a device. It then calculates the elapsed time for each event and offers the ability to save these results to a CSV file. Additionally, the script generates a plot that visualizes the event timeline.
 
 ## Functions
 
