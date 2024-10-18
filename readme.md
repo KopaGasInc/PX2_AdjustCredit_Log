@@ -6,6 +6,6 @@ This reporsitory is for scripts to processes log files during the development of
 
 This repository contains three subfolders, each with its own documentation. Click on the links below to view the documentation for each subfolder.
 
-- [DataAgregator](DataAgregator/DataAgregator.md)
-- [Folder 2 Documentation](folder2/README.md)
-- [Folder 3 Documentation](folder3/README.md)
+- [Data Agregator](dataAgregator/dataAgregator.md)
+- [Extract Events from a Log File](extractEvents/README.md)
+- [Extract Events from Multiple Files](ExtractEventsForMultipleFiles/xtractEventsForMultipleFiles.md)
