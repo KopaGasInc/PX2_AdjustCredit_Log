@@ -9,4 +9,4 @@ This repository contains subfolders, each with its own documentation. Click on t
 - [Data Agregator](dataAgregator/dataAgregator.md)
 - [Extract Events from a Log File](extractEvents/extractEvents.md)
 - [Extract Events from Multiple Log Files](extractEventsForMultipleFiles/ExtractEventsFromMultipleLogs.md)
-- [Energy Analysis](px2EnergyAnalysis/px2EnergyAnalysis.md)
+- [Energy Analysis](px2EnergyAnalysis/px2energyAnalysis.md)
