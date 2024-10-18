@@ -36,7 +36,8 @@ pip install pandas matplotlib openpyxl
 └── /Power test            # Directory containing Excel files for current and voltage data
     ├── 24299990034 current test.xlsx
     └── 24299990030 voltage test.xlsx
-Running the Script
+
+# Running the Script
 
 To run the script, follow these steps:
 
