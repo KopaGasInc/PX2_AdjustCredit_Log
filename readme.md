@@ -1,4 +1,4 @@
-# Tools for PX2 test
+# Tools for PX2 tests
 
 This reporsitory is for scripts to processes log files during the development of PX2. It is intended to simplify data organization for analysis on Excel or other tools.
 
